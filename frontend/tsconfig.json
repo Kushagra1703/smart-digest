@@ -18,8 +18,11 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      // Tell TypeScript where the generated client lives
+      "prisma-client": ["./src/generated/prisma/client"]
     }
   },
   "include": [

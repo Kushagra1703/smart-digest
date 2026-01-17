@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Analysis {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  fileName  String
+  fileType  String
+  prompt    String   @db.Text
+  content   String   @db.Text
+  userId    String
+
+  @@index([userId])
+}
