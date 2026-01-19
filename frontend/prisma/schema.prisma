@@ -12,6 +12,7 @@ model Analysis {
   createdAt DateTime @default(now())
   fileName  String
   fileType  String
+  fileUrl   String?
   prompt    String   @db.Text
   content   String   @db.Text
   userId    String

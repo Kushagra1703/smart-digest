@@ -29,6 +29,7 @@ export type AnalysisMinAggregateOutputType = {
   createdAt: Date | null
   fileName: string | null
   fileType: string | null
+  fileUrl: string | null
   prompt: string | null
   content: string | null
   userId: string | null
@@ -39,6 +40,7 @@ export type AnalysisMaxAggregateOutputType = {
   createdAt: Date | null
   fileName: string | null
   fileType: string | null
+  fileUrl: string | null
   prompt: string | null
   content: string | null
   userId: string | null
@@ -49,6 +51,7 @@ export type AnalysisCountAggregateOutputType = {
   createdAt: number
   fileName: number
   fileType: number
+  fileUrl: number
   prompt: number
   content: number
   userId: number
@@ -61,6 +64,7 @@ export type AnalysisMinAggregateInputType = {
   createdAt?: true
   fileName?: true
   fileType?: true
+  fileUrl?: true
   prompt?: true
   content?: true
   userId?: true
@@ -71,6 +75,7 @@ export type AnalysisMaxAggregateInputType = {
   createdAt?: true
   fileName?: true
   fileType?: true
+  fileUrl?: true
   prompt?: true
   content?: true
   userId?: true
@@ -81,6 +86,7 @@ export type AnalysisCountAggregateInputType = {
   createdAt?: true
   fileName?: true
   fileType?: true
+  fileUrl?: true
   prompt?: true
   content?: true
   userId?: true
@@ -164,6 +170,7 @@ export type AnalysisGroupByOutputType = {
   createdAt: Date
   fileName: string
   fileType: string
+  fileUrl: string | null
   prompt: string
   content: string
   userId: string
@@ -195,6 +202,7 @@ export type AnalysisWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Analysis"> | Date | string
   fileName?: Prisma.StringFilter<"Analysis"> | string
   fileType?: Prisma.StringFilter<"Analysis"> | string
+  fileUrl?: Prisma.StringNullableFilter<"Analysis"> | string | null
   prompt?: Prisma.StringFilter<"Analysis"> | string
   content?: Prisma.StringFilter<"Analysis"> | string
   userId?: Prisma.StringFilter<"Analysis"> | string
@@ -205,6 +213,7 @@ export type AnalysisOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  fileUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   prompt?: Prisma.SortOrder
   content?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -218,6 +227,7 @@ export type AnalysisWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Analysis"> | Date | string
   fileName?: Prisma.StringFilter<"Analysis"> | string
   fileType?: Prisma.StringFilter<"Analysis"> | string
+  fileUrl?: Prisma.StringNullableFilter<"Analysis"> | string | null
   prompt?: Prisma.StringFilter<"Analysis"> | string
   content?: Prisma.StringFilter<"Analysis"> | string
   userId?: Prisma.StringFilter<"Analysis"> | string
@@ -228,6 +238,7 @@ export type AnalysisOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  fileUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   prompt?: Prisma.SortOrder
   content?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -244,6 +255,7 @@ export type AnalysisScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Analysis"> | Date | string
   fileName?: Prisma.StringWithAggregatesFilter<"Analysis"> | string
   fileType?: Prisma.StringWithAggregatesFilter<"Analysis"> | string
+  fileUrl?: Prisma.StringNullableWithAggregatesFilter<"Analysis"> | string | null
   prompt?: Prisma.StringWithAggregatesFilter<"Analysis"> | string
   content?: Prisma.StringWithAggregatesFilter<"Analysis"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Analysis"> | string
@@ -254,6 +266,7 @@ export type AnalysisCreateInput = {
   createdAt?: Date | string
   fileName: string
   fileType: string
+  fileUrl?: string | null
   prompt: string
   content: string
   userId: string
@@ -264,6 +277,7 @@ export type AnalysisUncheckedCreateInput = {
   createdAt?: Date | string
   fileName: string
   fileType: string
+  fileUrl?: string | null
   prompt: string
   content: string
   userId: string
@@ -274,6 +288,7 @@ export type AnalysisUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -284,6 +299,7 @@ export type AnalysisUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -294,6 +310,7 @@ export type AnalysisCreateManyInput = {
   createdAt?: Date | string
   fileName: string
   fileType: string
+  fileUrl?: string | null
   prompt: string
   content: string
   userId: string
@@ -304,6 +321,7 @@ export type AnalysisUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -314,6 +332,7 @@ export type AnalysisUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -324,6 +343,7 @@ export type AnalysisCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  fileUrl?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   content?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -334,6 +354,7 @@ export type AnalysisMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  fileUrl?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   content?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -344,6 +365,7 @@ export type AnalysisMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  fileUrl?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   content?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -357,6 +379,10 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
 
 
 export type AnalysisSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -364,6 +390,7 @@ export type AnalysisSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   createdAt?: boolean
   fileName?: boolean
   fileType?: boolean
+  fileUrl?: boolean
   prompt?: boolean
   content?: boolean
   userId?: boolean
@@ -374,6 +401,7 @@ export type AnalysisSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   createdAt?: boolean
   fileName?: boolean
   fileType?: boolean
+  fileUrl?: boolean
   prompt?: boolean
   content?: boolean
   userId?: boolean
@@ -384,6 +412,7 @@ export type AnalysisSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   createdAt?: boolean
   fileName?: boolean
   fileType?: boolean
+  fileUrl?: boolean
   prompt?: boolean
   content?: boolean
   userId?: boolean
@@ -394,12 +423,13 @@ export type AnalysisSelectScalar = {
   createdAt?: boolean
   fileName?: boolean
   fileType?: boolean
+  fileUrl?: boolean
   prompt?: boolean
   content?: boolean
   userId?: boolean
 }
 
-export type AnalysisOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "fileName" | "fileType" | "prompt" | "content" | "userId", ExtArgs["result"]["analysis"]>
+export type AnalysisOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "fileName" | "fileType" | "fileUrl" | "prompt" | "content" | "userId", ExtArgs["result"]["analysis"]>
 
 export type $AnalysisPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Analysis"
@@ -409,6 +439,7 @@ export type $AnalysisPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     createdAt: Date
     fileName: string
     fileType: string
+    fileUrl: string | null
     prompt: string
     content: string
     userId: string
@@ -839,6 +870,7 @@ export interface AnalysisFieldRefs {
   readonly createdAt: Prisma.FieldRef<"Analysis", 'DateTime'>
   readonly fileName: Prisma.FieldRef<"Analysis", 'String'>
   readonly fileType: Prisma.FieldRef<"Analysis", 'String'>
+  readonly fileUrl: Prisma.FieldRef<"Analysis", 'String'>
   readonly prompt: Prisma.FieldRef<"Analysis", 'String'>
   readonly content: Prisma.FieldRef<"Analysis", 'String'>
   readonly userId: Prisma.FieldRef<"Analysis", 'String'>

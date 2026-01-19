@@ -16,6 +16,11 @@ backend/.venv/
 backend/env/
 backend/temp_*
 
+# --- Local Storage (SmartDigest Specific) ---
+# Prevents testing images from going to GitHub
+backend/static/uploads/*
+!backend/static/uploads/.gitkeep
+
 # --- Database & Prisma ---
 node_modules/.prisma/
 /prisma/migrations/
