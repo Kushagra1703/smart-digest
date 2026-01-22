@@ -1,78 +1,96 @@
-import { prisma } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-// 1. Import the Analysis type from the generated client
-import { Analysis } from "prisma-client";
-import { PlusCircle, History, FileText } from "lucide-react";
+import { Plus, History, FileText, Search, Loader2 } from "lucide-react";
+import { clsx } from "clsx";
 
-export default async function HistorySidebar() {
-    const { userId } = await auth();
+export default function HistorySidebar() {
+    const router = useRouter();
+    const params = useParams();
+    const [history, setHistory] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    if (!userId) return null;
+    // 1. Fix the "2 F5" issue by refreshing data on mount
+    useEffect(() => {
+        const fetchHistory = async () => {
+            try {
+                const res = await fetch("/api/history"); // Ensure you have this endpoint
+                const data = await res.json();
+                setHistory(data);
+            } catch (err) {
+                console.error("Failed to load history", err);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    // 2. Explicitly type the history array
-    const history: Analysis[] = await prisma.analysis.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-        take: 15,
-    });
+        fetchHistory();
+        router.refresh(); // Sync server components
+    }, [router, params.id]); // Re-run if ID changes to keep sidebar synced
 
     return (
-        <aside className="w-72 border-r h-[calc(100vh-64px)] bg-slate-50/50 flex flex-col">
-            {/* Sidebar Header & Action */}
-            <div className="p-4 border-b bg-white">
+        <aside className="w-72 h-screen flex flex-col bg-card border-r border-border transition-colors duration-500">
+            {/* New Analysis Button */}
+            <div className="p-4">
                 <Link
                     href="/dashboard"
-                    className="flex items-center justify-center gap-2 w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-all shadow-sm"
+                    className="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/20 hover:opacity-90 transition-all"
                 >
-                    <PlusCircle size={18} />
-                    New Analysis
+                    <Plus size={18} />
+                    <span>New Analysis</span>
                 </Link>
             </div>
 
-            {/* History List */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-4">
-                <div className="flex items-center gap-2 px-2 text-slate-500 font-semibold text-xs uppercase tracking-wider">
+            <div className="flex-1 overflow-y-auto px-4 space-y-1">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs font-bold uppercase tracking-widest mb-4 px-2">
                     <History size={14} />
-                    Recent Research
+                    <span>Recent Research</span>
                 </div>
 
-                <nav className="space-y-1">
-                    {history.length === 0 ? (
-                        <div className="text-center py-10 px-4">
-                            <FileText className="mx-auto text-slate-300 mb-2" size={32} />
-                            <p className="text-sm text-slate-500">No digests found. Start by uploading a file!</p>
-                        </div>
-                    ) : (
-                        // 3. Typed 'item' to resolve the TypeScript squiggly line
-                        history.map((item: Analysis) => (
-                            <Link
-                                key={item.id}
-                                href={`/dashboard/${item.id}`}
-                                className="group flex flex-col p-3 rounded-xl hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-200 transition-all"
-                            >
-                                <span className="text-sm font-medium text-slate-700 truncate group-hover:text-indigo-600">
-                                    {item.fileName}
-                                </span>
-                                <div className="flex justify-between items-center mt-1">
-                                    <span className="text-[11px] text-slate-400">
-                                        {new Date(item.createdAt).toLocaleDateString("en-IN", {
-                                            day: "2-digit",
-                                            month: "short",
-                                        })}
-                                    </span>
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-mono uppercase">
-                                        {item.fileType.split("/")[1] || "file"}
-                                    </span>
-                                </div>
-                            </Link>
-                        ))
-                    )}
-                </nav>
+                {loading ? (
+                    <div className="flex justify-center p-8">
+                        <Loader2 className="animate-spin text-primary" />
+                    </div>
+                ) : history.length > 0 ? (
+                    history.map((item) => (
+                        <Link
+                            key={item.id}
+                            href={`/dashboard/${item.id}`}
+                            className={clsx(
+                                "flex flex-col p-3 rounded-lg transition-all group",
+                                params.id === item.id
+                                    ? "bg-primary/10 border-l-4 border-primary"
+                                    : "hover:bg-slate-100 dark:hover:bg-zinc-800"
+                            )}
+                        >
+                            <span className={clsx(
+                                "text-sm font-semibold truncate",
+                                params.id === item.id ? "text-primary" : "text-foreground"
+                            )}>
+                                {item.fileName}
+                            </span>
+                            <span className="text-[10px] text-slate-400 uppercase mt-1">
+                                {item.fileType || "File"} • {new Date(item.createdAt).toLocaleDateString()}
+                            </span>
+                        </Link>
+                    ))
+                ) : (
+                    <div className="text-center py-10 text-slate-400 text-sm italic">
+                        No history found
+                    </div>
+                )}
             </div>
 
-            <div className="p-4 border-t bg-slate-50 text-[10px] text-slate-400 text-center">
-                Logged in as research partner
+            {/* User/Profile Section placeholder */}
+            <div className="p-4 border-t border-border bg-background/50">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                        K
+                    </div>
+                    <span className="text-sm font-medium">Kushagra</span>
+                </div>
             </div>
         </aside>
     );

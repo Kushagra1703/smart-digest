@@ -1,66 +1,92 @@
-import { prisma } from "@/lib/prisma"; 
+import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
 import ReactMarkdown from "react-markdown";
-import { Download, FileText, Calendar, Zap } from "lucide-react";
+import { Download, Calendar, Zap, FileText, ExternalLink, Hash } from "lucide-react";
 
 export default async function HistoryDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { userId } = await auth();
-    const { id } = await params;
-    if (!userId) redirect("/");
+    const { id } = await params; // Crucial fix for the Prisma error
 
-    const analysis = await prisma.analysis.findUnique({ where: { id, userId } });
+    if (!userId) redirect("/");
+    if (!id) redirect("/dashboard");
+
+    const analysis = await prisma.analysis.findUnique({
+        where: { id, userId },
+    });
+
     if (!analysis) notFound();
 
-    const fileLink = analysis.fileUrl; 
+    const fileLink = analysis.fileUrl;
     const isImage = !!analysis.fileName.toLowerCase().match(/\.(jpeg|jpg|gif|png|webp)$/i);
 
-    // We add a timestamp to the URL to force the browser to refresh the image
-    const cacheBusterUrl = fileLink ? `${fileLink}?t=${new Date().getTime()}` : null;
-
     return (
-        <main className="p-10 max-w-4xl mx-auto bg-white min-h-screen shadow-sm border border-slate-100 text-black">
-            {/* Header Section */}
-            <div className="border-b pb-6 mb-8 flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                        <FileText className="text-indigo-600" /> {analysis.fileName}
-                    </h1>
-                    <p className="text-slate-400 text-sm flex items-center gap-1">
-                        <Calendar size={14} /> Analyzed on {new Date(analysis.createdAt).toLocaleDateString("en-IN")}
-                    </p>
+        <main className="w-full max-w-5xl mx-auto py-10 px-6 space-y-8 animate-in fade-in duration-700">
+            {/* 1. Header Card */}
+            <div className="bg-card border border-border rounded-[2rem] p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                        <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+                            <FileText size={24} />
+                        </div>
+                        <h1 className="text-2xl md:text-3xl font-black tracking-tight text-foreground">
+                            {analysis.fileName}
+                        </h1>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs font-bold">
+                        <span className="flex items-center gap-1.5 text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full">
+                            <Calendar size={14} />
+                            {new Date(analysis.createdAt).toLocaleDateString("en-IN")}
+                        </span>
+                        <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full uppercase tracking-tighter">
+                            {analysis.fileType || "Research"}
+                        </span>
+                    </div>
                 </div>
+
                 {fileLink && (
-                    <a href={fileLink} target="_blank" className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition flex items-center gap-2 shadow-lg">
-                        <Download size={18} /> Download Original File
+                    <a href={fileLink} target="_blank" className="flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-2xl font-black transition-all shadow-xl shadow-primary/20 hover:scale-[1.03] active:scale-95">
+                        <Download size={20} />
+                        Download Original
                     </a>
                 )}
             </div>
 
-            {/* PREVIEW SECTION: Forced reload logic */}
-            <div className="mb-10 p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex justify-center items-center min-h-[300px]">
-                {cacheBusterUrl && isImage ? (
-                    <img 
-                        src={cacheBusterUrl} 
-                        alt="Research Input" 
-                        className="max-h-[450px] w-auto rounded-lg shadow-xl border-4 border-white object-contain"
-                    />
-                ) : (
-                    <div className="text-slate-400 text-center">
-                        <p className="italic">Preview not available for this file type.</p>
-                        <p className="text-xs mt-2">Use the download button to view the file.</p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* 2. Preview (Left) */}
+                <div className="lg:col-span-5 space-y-6">
+                    <div className="bg-card border border-border rounded-[2rem] p-5 shadow-sm overflow-hidden">
+                        <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-4 flex justify-between px-2">
+                            <span>Security Verified Preview</span>
+                            <Hash size={12} />
+                        </div>
+                        <div className="rounded-2xl bg-background border border-border/50 h-[400px] flex items-center justify-center overflow-hidden">
+                            {fileLink && isImage ? (
+                                <img src={fileLink} alt="Analysis" className="max-h-full w-auto object-contain transition-transform duration-500 hover:scale-110" />
+                            ) : (
+                                <div className="text-center space-y-4 opacity-50">
+                                    <FileText size={48} className="mx-auto" />
+                                    <p className="text-xs font-bold">PREVIEW NOT SUPPORTED</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                )}
-            </div>
-
-            {/* AI CONTENT SECTION */}
-            <div className="relative p-8 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-600" />
-                <div className="flex items-center gap-2 mb-6 text-indigo-600 font-bold uppercase tracking-widest text-xs">
-                    <Zap size={16} /> Analysis Result
                 </div>
-                <div className="prose prose-indigo max-w-none text-slate-700 leading-relaxed">
-                    <ReactMarkdown>{analysis.content}</ReactMarkdown>
+
+                {/* 3. Analysis Results (Right) */}
+                <div className="lg:col-span-7">
+                    <div className="bg-card border border-border rounded-[2rem] p-8 md:p-12 shadow-sm relative">
+                        <div className="absolute top-0 left-12 right-12 h-1 bg-primary rounded-b-full shadow-[0_0_20px_rgba(79,70,229,0.5)]" />
+                        <div className="flex items-center gap-2 mb-10 text-primary font-black uppercase tracking-widest text-[10px]">
+                            <Zap size={16} fill="currentColor" />
+                            <span>Gemini 3 Flash Digest</span>
+                        </div>
+                        <div className="prose prose-indigo dark:prose-invert max-w-none 
+              prose-p:text-foreground/80 prose-p:text-lg
+              prose-strong:text-primary prose-strong:font-black">
+                            <ReactMarkdown>{analysis.content}</ReactMarkdown>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
