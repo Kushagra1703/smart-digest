@@ -1,14 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { analyzeMedia } from "@/actions/analyze";
 import ReactMarkdown from "react-markdown";
-import { FileSearch, Send, Loader2, Sparkles, ShieldCheck, History } from "lucide-react";
+import { 
+  FileSearch, 
+  Send, 
+  Loader2, 
+  Sparkles, 
+  History, 
+  FileCheck, 
+  X 
+} from "lucide-react";
 import Link from "next/link";
 
 export default function AnalysisPage() {
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle local file selection feedback
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const clearFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,6 +41,8 @@ export default function AnalysisPage() {
 
     if (response.success) {
       setResult(response.analysis);
+    } else {
+      alert(response.error || "Analysis failed. Please check your backend.");
     }
     setLoading(false);
   }
@@ -44,20 +68,51 @@ export default function AnalysisPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="group relative bg-background/50 border-2 border-dashed border-border rounded-3xl p-10 text-center hover:border-primary/50 transition-all cursor-pointer">
+            {/* Interactive File Dropzone */}
+            <div 
+              className={`group relative border-2 border-dashed rounded-3xl p-10 text-center transition-all cursor-pointer ${
+                selectedFile ? "border-primary bg-primary/5" : "border-border bg-background/50 hover:border-primary/50"
+              }`}
+            >
+              {/* THE FIX: z-index ensures this is the layer that gets clicked */}
               <input
+                ref={fileInputRef}
                 type="file"
                 name="file"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50"
                 required
               />
-              <div className="text-muted-foreground flex flex-col items-center gap-3">
+              
+              <div className="text-muted-foreground flex flex-col items-center gap-3 relative z-10">
                 <div className="w-12 h-12 rounded-2xl bg-background border border-border flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Sparkles className="text-primary" size={24} />
+                  {selectedFile ? (
+                    <FileCheck className="text-primary" size={24} />
+                  ) : (
+                    <Sparkles className="text-primary" size={24} />
+                  )}
                 </div>
+                
                 <div className="space-y-1">
-                  <p className="text-foreground font-bold text-lg">Choose your file</p>
-                  <p className="text-xs font-medium opacity-70">Supports PDF, Audio, Photo, or Video</p>
+                  {selectedFile ? (
+                    <div className="flex items-center gap-2">
+                      <p className="text-foreground font-bold text-lg truncate max-w-[200px]">
+                        {selectedFile.name}
+                      </p>
+                      <button 
+                        type="button" 
+                        onClick={clearFile}
+                        className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500 rounded-full transition-colors relative z-[60]"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-foreground font-bold text-lg">Click to select file</p>
+                      <p className="text-xs font-medium opacity-70">Supports PDF, JPG, MP3, or MP4</p>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -66,13 +121,13 @@ export default function AnalysisPage() {
               <input
                 type="text"
                 name="prompt"
-                placeholder="Ex: Summarize this document..."
+                placeholder="Ask Gemini anything about this file..."
                 className="w-full p-5 rounded-2xl bg-background border border-border text-foreground placeholder:text-muted-foreground/50 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-medium"
                 required
               />
 
               <button
-                disabled={loading}
+                disabled={loading || !selectedFile}
                 className="w-full py-5 bg-primary hover:opacity-90 disabled:bg-muted disabled:opacity-50 text-white font-black rounded-2xl transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 text-lg"
               >
                 {loading ? (
@@ -83,7 +138,7 @@ export default function AnalysisPage() {
                 ) : (
                   <>
                     <Send size={20} />
-                    <span>Run SmartDigest</span>
+                    <span>Run SmartDigest Analysis</span>
                   </>
                 )}
               </button>
@@ -92,7 +147,7 @@ export default function AnalysisPage() {
         </div>
       </div>
 
-      {/* Instant Result View */}
+      {/* Result View */}
       {result && (
         <div className="w-full max-w-4xl bg-card border border-border rounded-[2.5rem] p-8 md:p-12 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="flex items-center justify-between mb-8 pb-6 border-b border-border">
