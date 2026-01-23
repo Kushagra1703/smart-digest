@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from 'next/image';
 import { Zap, Clock, FileText, Download, Eye, LayoutGrid } from "lucide-react";
 
 export default async function HistoryPage() {
@@ -59,11 +60,13 @@ export default async function HistoryPage() {
                             <div key={item.id} className="group bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col">
                                 <div className="aspect-video bg-background border-b border-border flex items-center justify-center overflow-hidden relative">
                                     {isImage && hasUrl ? (
-                                        <img
-                                            src={item.fileUrl}
-                                            alt="Research Preview"
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                        />
+                                        <Image
+                                        src={item.fileUrl ?? ""}
+                                        alt="Research Preview"
+                                        width={500} // Add required width
+                                        height={300} // Add required height
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                    />
                                     ) : (
                                         <div className="flex flex-col items-center gap-2 opacity-30">
                                             <FileText size={48} />
@@ -97,7 +100,7 @@ export default async function HistoryPage() {
                                             <Eye size={18} /> Details
                                         </Link>
                                         {hasUrl && (
-                                            <a href={item.fileUrl} target="_blank" className="flex items-center justify-center gap-2 bg-primary/10 text-primary py-4 rounded-2xl font-black text-sm hover:bg-primary hover:text-white transition-all">
+                                            <a href={item.fileUrl ?? "#"} target="_blank" className="flex items-center justify-center gap-2 bg-primary/10 text-primary py-4 rounded-2xl font-black text-sm hover:bg-primary hover:text-white transition-all">
                                                 <Download size={18} /> Save
                                             </a>
                                         )}

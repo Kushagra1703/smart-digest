@@ -1,0 +1,17 @@
+# Python environment
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# Environment Variables (CRITICAL)
+.env
+
+# Logs
+*.log
+
+# OS Files
+.DS_Store
