@@ -5,6 +5,7 @@ from google.genai import types
 import requests
 import os
 from dotenv import load_dotenv
+from openai import OpenAI
 
 # Load environment variables for local testing
 load_dotenv()
@@ -22,9 +23,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 2. Initialize the Gemini Client
-# On Render, you will add GEMINI_API_KEY to the Environment Variables dashboard
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# 2. Initialize the Gemini & DeepSeek Clients
+# On Render, you will add GEMINI_API_KEY and DEEPSEEK_API_KEY to the Environment Variables dashboard
+gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+deepseek_client = OpenAI(
+    api_key=os.getenv("DEEPSEEK_API_KEY"),
+    base_url="https://openrouter.ai/api/v1"
+)
 
 def get_mime_type(url: str) -> str:
     """Detects MIME type from Cloudinary URL"""
@@ -39,35 +45,49 @@ def get_mime_type(url: str) -> str:
 @app.post("/analyze")
 async def analyze(payload: dict = Body(...)):
     """
-    Downloads file from Cloudinary and processes with Gemini 2.0 Flash
+    If file_url is provided, uses Gemini 2.0 Flash for multimodal processing.
+    If no file_url is provided, uses DeepSeek API for text-only to save Gemini rate limits.
     """
     file_url = payload.get("file_url")
     prompt = payload.get("prompt")
 
-    if not file_url or not prompt:
-        raise HTTPException(status_code=400, detail="Missing file_url or prompt")
+    if not prompt:
+        raise HTTPException(status_code=400, detail="Missing prompt")
 
     try:
-        # 3. Download bytes from Cloudinary
-        response = requests.get(file_url, timeout=15)
-        if response.status_code != 200:
-            raise HTTPException(status_code=400, detail="Cloudinary download failed")
-        
-        file_bytes = response.content
-        mime_type = get_mime_type(file_url)
+        if file_url:
+            # MULTIMODAL: Use Gemini Pro as requested for file handling
+            # 3. Download bytes from Cloudinary
+            response = requests.get(file_url, timeout=15)
+            if response.status_code != 200:
+                raise HTTPException(status_code=400, detail="Cloudinary download failed")
+            
+            file_bytes = response.content
+            mime_type = get_mime_type(file_url)
 
-        # 4. Generate Content
-        ai_response = client.models.generate_content(
-            model="gemini-2.0-flash-exp", 
-            contents=[
-                prompt,
-                types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
-            ]
-        )
-        
+            # 4. Generate Content with Gemini
+            ai_response = gemini_client.models.generate_content(
+                model="gemini-2.0-flash-exp", 
+                contents=[
+                    prompt,
+                    types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
+                ]
+            )
+            result_text = ai_response.text if ai_response.text else "AI empty response"
+        else:
+            # TEXT-ONLY: Use DeepSeek API to save Gemini limits
+            ai_response = deepseek_client.chat.completions.create(
+                model="deepseek/deepseek-r1",
+                messages=[
+                    {"role": "user", "content": prompt},
+                ],
+                stream=False
+            )
+            result_text = ai_response.choices[0].message.content
+
         return {
             "success": True,
-            "analysis": ai_response.text if ai_response.text else "AI empty response"
+            "analysis": result_text
         }
     
     except Exception as e:
