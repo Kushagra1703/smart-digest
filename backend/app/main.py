@@ -67,7 +67,7 @@ async def analyze(payload: dict = Body(...)):
 
             # 4. Generate Content with Gemini
             ai_response = gemini_client.models.generate_content(
-                model="gemini-1.5-flash", 
+                model="gemini-2.0-flash", 
                 contents=[
                     prompt,
                     types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
