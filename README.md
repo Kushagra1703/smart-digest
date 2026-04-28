@@ -1,8 +1,6 @@
 # SmartDigest 🚀
 **An AI-powered Research Assistant that summarizes and analyzes documents.**
 
-### 🔗 [Live Demo](https://smart-digest-frontend.vercel.app/)
-
 ## 📖 Overview
 SmartDigest helps users process large amounts of information by providing intelligent summaries and insights. 
 Built with a modern tech stack, it features secure authentication, real-time database syncing, 
